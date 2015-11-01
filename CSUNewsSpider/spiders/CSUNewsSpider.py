@@ -19,7 +19,7 @@ class CSUNewsSpider(scrapy.Spider):
             for content in response.css('.subCont p::text').extract():
                 contents+=content
             title+=response.css('.subTitle2 span::text').extract()[0]
-            time+=response.css('.otherTme::text').extract()[1]
+            time+='-'.join(response.css('.otherTme::text').re(r'(\d+)'))
             yield{
                 'title':title,
                 'time' :time,
