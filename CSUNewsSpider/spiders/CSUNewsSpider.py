@@ -1,4 +1,12 @@
+# coding=utf-8
 import scrapy
+import MySQLdb
+
+# ����ݿ�����
+
+# ʹ��cursor()������ȡ�����α�
+cursor = db.cursor()
+
 
 class CSUNewsSpider(scrapy.Spider):
     name="CSUNews"
@@ -20,6 +28,19 @@ class CSUNewsSpider(scrapy.Spider):
                 contents+=content
             title+=response.css('.subTitle2 span::text').extract()[0]
             time+='-'.join(response.css('.otherTme::text').re(r'(\d+)'))
+            # SQL �������
+            sql = """INSERT INTO EMPLOYEE(title,content, time)VALUES ('%s', '%s','%s')"""%(title,contents,time)
+            try:
+                # ִ��sql���
+                cursor.execute(sql)
+                # �ύ����ݿ�ִ��
+                db.commit()
+            except:
+                # Rollback in case there is any error
+                db.rollback()
+        # �ر���ݿ�����
+      	        db.close()
+
             yield{
                 'title':title,
                 'time' :time,
