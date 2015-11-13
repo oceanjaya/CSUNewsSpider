@@ -40,7 +40,7 @@ class CSUNewsSpider(scrapy.Spider):
             except Exception,e:
                 print e
                 db.rollback()
-                db.close()
+
         except Exception,e:
             print e
             pass
@@ -64,9 +64,9 @@ class CSUAcademicSpider(scrapy.Spider):
             url=response.url
             contents=response.xpath('string(//div[@class="topCont"])').extract()[0]
             title=response.xpath('//h3[contains(@class,"newsTitle")]/text()').extract()[0]
-            date_re_words = re.compile(u"\u95f4\uff1a(.+)")
+            date_re_words = re.compile(u"\u95f4\uff1a(.+)\r")
             date=date_re_words.search(contents, 0).group(1)
-            location_re_words = re.compile(u"\u70b9\uff1a(.+)")
+            location_re_words = re.compile(u"\u70b9\uff1a(.+\r)")
             location=location_re_words.search(contents, 0).group(1)
             yield{
                 'title':title,
@@ -74,16 +74,15 @@ class CSUAcademicSpider(scrapy.Spider):
                 'location':location,
                 'contents':contents,
                 'url':url,
-            }
-            sql = """insert into academic(title,content, date,url,location ) values ('%s', '%s','%s','%s','%s')"""\
+             }
+            sql = "insert into academic(title,content, date,url,location ) values ('%s', '%s','%s','%s','%s')"\
                   %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'))
             try:
                 cursor.execute(sql)
                 db.commit()
             except Exception,e:
                 print e
-                db.rollback()
-                db.close()
+                pass
         except Exception,e:
             print e
             pass
