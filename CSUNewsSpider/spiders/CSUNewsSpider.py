@@ -51,8 +51,8 @@ class CSUAcademicSpider(scrapy.Spider):
     name="CSUAcademic"
     allowed_domains=["sise.csu.edu.cn"]
     start_urls=["http://sise.csu.edu.cn/index/xsbg.htm"]
-    cursor.execute('DELETE FROM academic;')
     def parse(self,response):
+        cursor.execute('delete from info where type="academic";')
         for sel in response.xpath('//ul[contains(@class,"eduList")]/li'):
             url_re_words = re.compile(u"info(.+)")
             _urls=sel.xpath('a/@href').extract()[0]
@@ -64,6 +64,8 @@ class CSUAcademicSpider(scrapy.Spider):
         try:
             url=response.url
             contents=response.xpath('string(//div[@class="topCont"])').extract()[0]
+            contents=contents.replace(u'&', u'&amp;')
+            contents=contents.replace(u'<',u'&lt;')
             title=response.xpath('//h3[contains(@class,"newsTitle")]/text()').extract()[0]
             date_re_words = re.compile(u"\u95f4\uff1a(.+)\r")
             date=date_re_words.search(contents, 0).group(1)
@@ -96,8 +98,8 @@ class CSUJobsSpider(scrapy.Spider):
     name="CSUJobs"
     allowed_domains=["jobsky.csu.edu.cn"]
     start_urls=["http://jobsky.csu.edu.cn:8000/Home/ListNews.aspx?typeid=1"]
-    cursor.execute('DELETE FROM jobs;')
     def parse(self,response):
+        cursor.execute('delete from info where type="jobs";')
         for suburl in response.xpath('//div[@id="listThree"]/div/div/table/tr[@class="data"]/td[@class="articletitle"]/a/@href').extract():
             job_urls='http://jobsky.csu.edu.cn:8000/Home/'+suburl
             #yield job_urls
@@ -106,12 +108,12 @@ class CSUJobsSpider(scrapy.Spider):
     def parse_links_content(self,response):
         try:
             url=response.url
-            contents=response.xpath('string(//div[@id="articleContent"])').extract()[0]
+            contents=response.xpath('string(//div[@id="articleContent"])').extract()[0].replace(u'\xa0', u'\r\n')
             title=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
-            date_re_words = re.compile(u"\u95f4\uff1a(.+)")
-            date=date_re_words.search(contents, 0).group(1)
-            location_re_words = re.compile(u"\u70b9\uff1a(.+)")
-            location=location_re_words.search(contents, 0).group(1)
+            date_re_words = re.compile(u"招聘时间：([\s\S]+?)招聘地点：")
+            date=date_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
+            location_re_words = re.compile(u"招聘地点：(.+?)\r")
+            location=location_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
             type=u"jobs"
             yield{
                 'title':title,
