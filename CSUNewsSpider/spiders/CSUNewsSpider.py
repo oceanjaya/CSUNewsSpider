@@ -66,7 +66,7 @@ class CSUAcademicSpider(scrapy.Spider):
             title=response.xpath('//h3[contains(@class,"newsTitle")]/text()').extract()[0]
             date_re_words = re.compile(u"\u95f4\uff1a(.+)\r")
             date=date_re_words.search(contents, 0).group(1)
-            location_re_words = re.compile(u"\u70b9\uff1a(.+\r)")
+            location_re_words = re.compile(u"\u70b9\uff1a(.+)\r")
             location=location_re_words.search(contents, 0).group(1)
             yield{
                 'title':title,
@@ -87,42 +87,44 @@ class CSUAcademicSpider(scrapy.Spider):
             print e
             pass
 
-#
-# class CSUNewsSpider(scrapy.Spider):
-#     name="CSUNews"
-#     allowed_domains=["news.csu.edu.cn"]
-#     start_urls=["http://news.csu.edu.cn/xxyw.htm"]
-#
-#     def parse(self,response):
-#         for sel in response.xpath('//ul/li'):
-#             news_urls='http://news.csu.edu.cn/'+sel.xpath('a/@href').extract()[0]
-#             yield scrapy.Request(news_urls,callback=self.parse_links_content)
-#
-#
-#     def parse_links_content(self,response):
-#         try:
-#             contents=''
-#             for content in response.css('.subCont p::text').extract():
-#                 contents+=content
-#             title=response.css('.subTitle2 span::text').extract()[0]
-#             date='-'.join(response.css('.otherTme::text').re(r'(\d+)'))
-#             url=response.url
-#
-#             yield{
-#                 'title':title,
-#                 'date' :date,
-#                 'contents':contents,
-#                 'url':url,
-#             }
-#             sql = """insert into news(title,content, date,url) values ('%s', '%s','%s','%s')"""\
-#                   %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'))
-#             try:
-#                 cursor.execute(sql)
-#                 db.commit()
-#             except Exception,e:
-#                 print e
-#                 db.rollback()
-#                 db.close()
-#         except Exception,e:
-#             print e
-#             pass
+
+
+class CSUJobsSpider(scrapy.Spider):
+    name="CSUJobs"
+    allowed_domains=["jobsky.csu.edu.cn"]
+    start_urls=["http://jobsky.csu.edu.cn:8000/Home/ListNews.aspx?typeid=1"]
+    cursor.execute('DELETE FROM jobs;')
+    def parse(self,response):
+        for suburl in response.xpath('//div[@id="listThree"]/div/div/table/tr[@class="data"]/td[@class="articletitle"]/a/@href').extract():
+            job_urls='http://jobsky.csu.edu.cn:8000/Home/'+suburl
+            #yield job_urls
+            yield scrapy.Request(job_urls,callback=self.parse_links_content)
+
+    def parse_links_content(self,response):
+        try:
+            url=response.url
+            contents=response.xpath('string(//div[@id="articleContent"])').extract()[0]
+            company=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
+            date_re_words = re.compile(u"\u95f4\uff1a(.+)")
+            date=date_re_words.search(contents, 0).group(1)
+            location_re_words = re.compile(u"\u70b9\uff1a(.+)")
+            location=location_re_words.search(contents, 0).group(1)
+            yield{
+                'company':company,
+                'date' :date,
+                'location':location,
+                'contents':contents,
+                'url':url,
+             }
+            sql = "insert into jobs(company,content, date,url,location ) values ('%s', '%s','%s','%s','%s')"\
+                  %(company.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'))
+            try:
+                cursor.execute(sql)
+                db.commit()
+            except Exception,e:
+                print e
+                pass
+        except Exception,e:
+            print e
+            pass
+
