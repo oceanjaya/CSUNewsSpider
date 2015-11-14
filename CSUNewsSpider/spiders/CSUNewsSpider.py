@@ -109,6 +109,8 @@ class CSUJobsSpider(scrapy.Spider):
         try:
             url=response.url
             contents=response.xpath('string(//div[@id="articleContent"])').extract()[0].replace(u'\xa0', u'\r\n')
+            contents=contents.replace(u'&', u'&amp;')
+            contents=contents.replace(u'<',u'&lt;')
             title=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
             date_re_words = re.compile(u"招聘时间：([\s\S]+?)招聘地点：")
             date=date_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
