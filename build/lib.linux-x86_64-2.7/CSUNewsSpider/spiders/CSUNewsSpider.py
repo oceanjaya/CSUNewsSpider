@@ -2,7 +2,6 @@
 import scrapy
 import MySQLdb
 import re
-#from CSUNewsSpider.items import NewsItem,
 db=MySQLdb.connect("localhost","spider","xyz","csuspider")
 cursor = db.cursor()
 db.set_character_set('utf8')
@@ -69,17 +68,15 @@ class CSUAcademicSpider(scrapy.Spider):
             date=date_re_words.search(contents, 0).group(1)
             location_re_words = re.compile(u"\u70b9\uff1a(.+)\r")
             location=location_re_words.search(contents, 0).group(1)
-            type=u"academic"
             yield{
                 'title':title,
                 'date' :date,
                 'location':location,
-                'content':contents,
+                'contents':contents,
                 'url':url,
-                'type':type
              }
-            sql = "insert into info(title,content, date,url,location,type ) values ('%s', '%s','%s','%s','%s','%s')"\
-                  %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'),type.encode('utf-8'))
+            sql = "insert into academic(title,content, date,url,location ) values ('%s', '%s','%s','%s','%s')"\
+                  %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'))
             try:
                 cursor.execute(sql)
                 db.commit()
@@ -107,22 +104,20 @@ class CSUJobsSpider(scrapy.Spider):
         try:
             url=response.url
             contents=response.xpath('string(//div[@id="articleContent"])').extract()[0]
-            title=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
+            company=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
             date_re_words = re.compile(u"\u95f4\uff1a(.+)")
             date=date_re_words.search(contents, 0).group(1)
             location_re_words = re.compile(u"\u70b9\uff1a(.+)")
             location=location_re_words.search(contents, 0).group(1)
-            type=u"jobs"
             yield{
-                'title':title,
+                'company':company,
                 'date' :date,
                 'location':location,
                 'content':contents,
                 'url':url,
-                'type':type
              }
-            sql = "insert into info(title,content, date,url,location,type ) values ('%s', '%s','%s','%s','%s','%s')"\
-                  %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'),type.encode('utf-8'))
+            sql = "insert into jobs(company,content, date,url,location ) values ('%s', '%s','%s','%s','%s')"\
+                  %(company.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'),location.encode('utf-8'))
             try:
                 cursor.execute(sql)
                 db.commit()
