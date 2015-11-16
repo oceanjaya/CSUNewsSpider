@@ -2,7 +2,7 @@
 import scrapy
 import MySQLdb
 import re
-#from CSUNewsSpider.items import NewsItem,
+from CSUNewsSpider.items import NewsItem,AcademicItem,JobsItem
 db=MySQLdb.connect("localhost","spider","xyz","csuspider")
 cursor = db.cursor()
 db.set_character_set('utf8')
@@ -10,31 +10,32 @@ cursor.execute('SET NAMES utf8;')
 cursor.execute('SET CHARACTER SET utf8;')
 cursor.execute('SET character_set_connection=utf8;')
 
-class CSUNewsSpider(scrapy.Spider):
+class CSUNewsSpiders(scrapy.Spider):
     name="CSUNews"
     allowed_domains=["news.csu.edu.cn"]
     start_urls=["http://news.csu.edu.cn/xxyw.htm"]
     cursor.execute('DELETE FROM news;')
     def parse(self,response):
+        cursor.execute('delete from news;')
         for sel in response.xpath('//ul/li'):
             news_urls='http://news.csu.edu.cn/'+sel.xpath('a/@href').extract()[0]
             yield scrapy.Request(news_urls,callback=self.parse_links_content)
 
     def parse_links_content(self,response):
         try:
-            contents=response.xpath('string(//div[@class="subCont"])').extract()[0]
-            title=response.css('.subTitle2 span::text').extract()[0]
-            date='-'.join(response.css('.otherTme::text').re(r'(\d+)'))
+            content=response.xpath('string(//div[@class="subCont"])').extract()[0]
+            title=response.xpath('//*[@class="subTitle2"]/span/text()').extract()[0]
+            date='-'.join(response.xpath('//*[@class="otherTme"]/text()').re(r'(\d+)'))
             url=response.url
-
-            yield{
+            news=NewsItem({
                 'title':title,
                 'date' :date,
-                'contents':contents,
+                'content':content,
                 'url':url,
-            }
+            })
+            yield  news
             sql = """insert into news(title,content, date,url) values ('%s', '%s','%s','%s')"""\
-                  %(title.encode('utf-8'),contents.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'))
+                  %(title.encode('utf-8'),content.encode('utf-8'),date.encode('utf-8'),url.encode('utf-8'))
             try:
                 cursor.execute(sql)
                 db.commit()

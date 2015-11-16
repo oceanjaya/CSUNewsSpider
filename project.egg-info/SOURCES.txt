@@ -3,7 +3,7 @@ CSUNewsSpider/__init__.py
 CSUNewsSpider/items.py
 CSUNewsSpider/pipelines.py
 CSUNewsSpider/settings.py
-CSUNewsSpider/spiders/CSUNewsSpider.py
+CSUNewsSpider/spiders/NewsSpider.py
 CSUNewsSpider/spiders/__init__.py
 project.egg-info/PKG-INFO
 project.egg-info/SOURCES.txt
