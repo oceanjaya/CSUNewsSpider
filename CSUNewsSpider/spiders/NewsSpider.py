@@ -14,7 +14,6 @@ class CSUNewsSpiders(scrapy.Spider):
     name="CSUNews"
     allowed_domains=["news.csu.edu.cn"]
     start_urls=["http://news.csu.edu.cn/xxyw.htm"]
-    cursor.execute('DELETE FROM news;')
     def parse(self,response):
         cursor.execute('delete from news;')
         for sel in response.xpath('//ul/li'):
