@@ -1,0 +1,4 @@
+# (put your own initials here)echo the date to the console every
+#crawl news,jobs,academic information every 12 hours
+0 * * * * sh ~/workspace/CSUNewsSpider/AutoCrawl.sh >/dev/null 2>&1
+
