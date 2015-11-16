@@ -41,11 +41,8 @@ class CSUNewsSpiders(scrapy.Spider):
                 db.commit()
             except Exception,e:
                 print e
-                db.rollback()
-
         except Exception,e:
             print e
-            pass
 
 
 class CSUAcademicSpider(scrapy.Spider):
@@ -89,10 +86,8 @@ class CSUAcademicSpider(scrapy.Spider):
                 db.commit()
             except Exception,e:
                 print e
-                pass
         except Exception,e:
             print e
-            pass
 
 
 
@@ -135,8 +130,6 @@ class CSUJobsSpider(scrapy.Spider):
                 db.commit()
             except Exception,e:
                 print e
-                pass
         except Exception,e:
             print e
-            pass
 
