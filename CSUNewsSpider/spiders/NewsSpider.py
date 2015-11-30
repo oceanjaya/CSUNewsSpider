@@ -23,6 +23,8 @@ class CSUNewsSpiders(scrapy.Spider):
     def parse_links_content(self,response):
         try:
             content=response.xpath('string(//div[@class="subCont"])').extract()[0]
+            content=content.replace(u'&', u'&amp;')
+            content=content.replace(u'<',u'&lt;')
             title=response.xpath('//*[@class="subTitle2"]/span/text()').extract()[0]
             date='-'.join(response.xpath('//*[@class="otherTme"]/text()').re(r'(\d+)'))
             url=response.url
