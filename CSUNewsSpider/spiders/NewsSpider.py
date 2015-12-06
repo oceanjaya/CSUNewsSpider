@@ -66,17 +66,18 @@ class CSUAcademicSpider(scrapy.Spider):
             contents=contents.replace(u'&', u'&amp;')
             contents=contents.replace(u'<',u'&lt;')
             title=response.xpath('//h3[contains(@class,"newsTitle")]/text()').extract()[0]
-            date_re_words = re.compile(u"\u95f4\uff1a(.+)\r")
+            date_re_words = re.compile(u"间：(.+)\r")
             date=date_re_words.search(contents, 0).group(1)
             date_tuple=re.findall(u"(\d+)月(\d+)[日号]",date)[0]
+            year=response.xpath('//p[@class="newsTO"]/text()').re(r'(\d+)')[0]
             month=date_tuple[0]
             day=date_tuple[1]
             if(len(month)==1):
                 month='0'+month
             if(len(day)==1):
                 day='0'+day
-            date_sort=month+day
-            location_re_words = re.compile(u"\u70b9\uff1a(.+)\r")
+            date_sort=year+month+day
+            location_re_words = re.compile(u"点：(.+)\r")
             location=location_re_words.search(contents, 0).group(1)
             type=u"academic"
             academic=AcademicItem({
@@ -121,14 +122,15 @@ class CSUJobsSpider(scrapy.Spider):
             title=response.xpath('//span[@id="ContentPlaceHolder1_lbltitle"]/text()').extract()[0]
             date_re_words = re.compile(u"招聘时间：([\s\S]+?)招聘地点：")
             date=date_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
-            date_tuple=re.findall(u"(\d+)月(\d+)[日号]",date)[0]
-            month=date_tuple[0]
-            day=date_tuple[1]
+            date_tuple=re.findall(u"(\d+)年(\d+)月(\d+)[日号]",date)[0]
+            year=date_tuple[0]
+            month=date_tuple[1]
+            day=date_tuple[2]
             if(len(month)==1):
                 month='0'+month
             if(len(day)==1):
                 day='0'+day
-            date_sort=month+day
+            date_sort=year+month+day
             location_re_words = re.compile(u"招聘地点：(.+?)\r")
             location=location_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
             type=u"jobs"
