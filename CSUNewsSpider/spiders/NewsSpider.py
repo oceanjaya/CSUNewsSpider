@@ -69,7 +69,13 @@ class CSUAcademicSpider(scrapy.Spider):
             date_re_words = re.compile(u"\u95f4\uff1a(.+)\r")
             date=date_re_words.search(contents, 0).group(1)
             date_tuple=re.findall(u"(\d+)月(\d+)[日号]",date)[0]
-            date_sort=date_tuple[0]+'-'+date_tuple[1]
+            month=date_tuple[0]
+            day=date_tuple[1]
+            if(len(month)==1):
+                month='0'+month
+            if(len(day)==1):
+                day='0'+day
+            date_sort=month+day
             location_re_words = re.compile(u"\u70b9\uff1a(.+)\r")
             location=location_re_words.search(contents, 0).group(1)
             type=u"academic"
@@ -116,7 +122,13 @@ class CSUJobsSpider(scrapy.Spider):
             date_re_words = re.compile(u"招聘时间：([\s\S]+?)招聘地点：")
             date=date_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
             date_tuple=re.findall(u"(\d+)月(\d+)[日号]",date)[0]
-            date_sort=date_tuple[0]+'-'+date_tuple[1]
+            month=date_tuple[0]
+            day=date_tuple[1]
+            if(len(month)==1):
+                month='0'+month
+            if(len(day)==1):
+                day='0'+day
+            date_sort=month+day
             location_re_words = re.compile(u"招聘地点：(.+?)\r")
             location=location_re_words.search(contents, 0).group(1).replace(u"\r\n",u" ")
             type=u"jobs"
