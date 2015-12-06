@@ -22,6 +22,7 @@ class AcademicItem(Item):
     location=Field()
     url=Field()
     type=Field()
+    date_sort=Field()
 
 class JobsItem(Item):
     title=Field()
@@ -30,4 +31,5 @@ class JobsItem(Item):
     location=Field()
     url=Field()
     type=Field()
+    date_sort=Field()
 
